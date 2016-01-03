@@ -4,8 +4,9 @@
 <title>Flood It</title>
 </head>
 <body>
-<h1>Flood IT made in HTML CSS and Javascript</h1>
-<canvas id="example" width=280 height=280>
+<center>
+<h1>Flood-It</h1>
+<canvas id="example" width=280 height=280 style="border:8px solid #000000;">
 </canvas><br>
 <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 <script type="text/javascript">
@@ -126,7 +127,7 @@ $('#example').click(function(e) {
   var c = this.getContext('2d');
   var p = c.getImageData(x, y, 1, 1).data;
   var hex = "#" + ("000000" + rgbToHex(p[0], p[1], p[2])).slice(-6);
-  var colorcode=arr[Math.floor(y/20)][Math.floor(x/20)];
+  var colorcode=arr[Math.floor((y-8)/20)][Math.floor((x-8)/20)];
   var win;
   if(colorcode!=arr[0][0])
   {
@@ -139,7 +140,7 @@ $('#example').click(function(e) {
   {
     $('#status2').html("YOU WIN");
   }
-  if(played==25)
+  if(!win && played==25)
   {
     $('#status2').html("YOU LOSE")
   }
@@ -150,5 +151,6 @@ $('#example').click(function(e) {
 </script>
 <div id="status"></div>
 <h3 id="status2"></div>
+</center>
 </body>
 </html>
