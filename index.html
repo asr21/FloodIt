@@ -6,7 +6,9 @@
 <body>
 <center>
 <h1>Flood-It</h1>
-<canvas id="example" width=280 height=280 style="border:8px solid #000000;">
+<button type="button" onclick="window.location.reload();"> New Game </button>
+<br><br>
+<canvas id="grid" width=280 height=280 style="border:8px solid #000000;">
 </canvas><br>
 <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 <script type="text/javascript">
@@ -21,31 +23,20 @@ function findPos(obj) {
   }
   return undefined;
 }
-function rgbToHex(r, g, b) {
-  if (r > 255 || g > 255 || b > 255)
-      throw "Invalid color component";
-  return ((r << 16) | (g << 8) | b).toString(16);
-}
-// set up some squares
-var example = document.getElementById('example');
-var context = example.getContext('2d');
-//context.fillStyle = "rgb(255,0,0)";
-//context.fillRect(0, 0, 50, 50);
-//context.fillStyle = "rgb(0,0,255)";
-//context.fillRect(50, 0, 50, 50);
+var grid = document.getElementById('grid');
+var context = grid.getContext('2d');
 var arr = new Array(14);
 for (var i = 0; i < 14; i++)
 {
   arr[i] = new Array(14);
 }
-  for(var i=0;i<14;i++)
+for(var i=0;i<14;i++)
+{
+  for(var j=0;j<14;j++)
   {
-    for(var j=0;j<14;j++)
-    {
-      arr[i][j] = Math.floor(Math.random()*6);
-    }
+    arr[i][j] = Math.floor(Math.random()*6);
   }
-paint();
+}
 function paint()
 {
   var xpos=0,ypos=0;
@@ -55,102 +46,73 @@ function paint()
     for(var j=0;j<14;j++)
     {
       if(arr[i][j]==0)
-      {
         context.fillStyle = "rgb(255,0,0)";
-      }
       else if(arr[i][j]==1)
-      {
         context.fillStyle = "rgb(92, 214, 92)";
-      }
       else if(arr[i][j]==2)
-      {
         context.fillStyle = "rgb(0, 204, 255)";
-      }
       else if(arr[i][j]==3)
-      {
         context.fillStyle="rgb(255, 174, 51)";
-      }
       else if(arr[i][j]==4)
-      {
         context.fillStyle="rgb(255, 255, 0)";
-      }
-      else {
+      else
         context.fillStyle="rgb(153, 102, 255)";
-      }
       context.fillRect(xpos,ypos, 20, 20);
       xpos+=20;
     }
     ypos+=20;
   }
 }
-function floodfill4x(originalColor,newColor,i=0,j=0)
+function floodfill4x(originalColor,newColor,i,j)
 {
   if(i<0 || j<0 || i>13 || j>13)
-  {
     return;
-  }
-  if(arr[i][j]==originalColor)
-  {
-    arr[i][j]=newColor;
-  }
+  if(arr[i][j]!=originalColor)
+    return;
   else {
-    return;
+    arr[i][j]=newColor;
+    floodfill4x(originalColor,newColor,i+1,j);
+    floodfill4x(originalColor,newColor,i-1,j);
+    floodfill4x(originalColor,newColor,i,j+1);
+    floodfill4x(originalColor,newColor,i,j-1);
   }
-  floodfill4x(originalColor,newColor,i+1,j);
-  floodfill4x(originalColor,newColor,i-1,j);
-  floodfill4x(originalColor,newColor,i,j+1);
-  floodfill4x(originalColor,newColor,i,j-1);
 }
 function checkwin()
 {
-  for(var i=0;i<14;i++)
-  {
-    for(var j=0;j<14;j++)
-    {
+  for(var i=0;i<14;i++) {
+    for(var j=0;j<14;j++) {
       if(arr[i][j]!=arr[0][0])
-      {
         return false;
-      }
     }
   }
   return true;
 }
+paint();
 var chances=25;
 var played=0;
-$('#example').click(function(e) {
-  if(played<25)
-  {
-  var pos = findPos(this);
-  var x = e.pageX - pos.x;
-  var y = e.pageY - pos.y;
-  var coord = "x=" + x + ", y=" + y;
-  var c = this.getContext('2d');
-  var p = c.getImageData(x, y, 1, 1).data;
-  var hex = "#" + ("000000" + rgbToHex(p[0], p[1], p[2])).slice(-6);
-  var colorcode=arr[Math.floor((y-8)/20)][Math.floor((x-8)/20)];
-  var win;
-  if(colorcode!=arr[0][0])
-  {
-    played+=1;
-    floodfill4x(arr[0][0],colorcode);
-    win=checkwin();
-    paint();
-  }
-  if(win)
-  {
-    $('#status2').html("YOU WIN");
-  }
-  if(!win && played==25)
-  {
-    $('#status2').html("YOU LOSE")
-  }
+$('#grid').click(function(e) {
+  if(played<25) {
+    var pos = findPos(this);
+    var x = e.pageX - pos.x;
+    var y = e.pageY - pos.y;
+    var colorcode=arr[Math.floor((y-8)/20)][Math.floor((x-8)/20)];
+    var win;
+    if(colorcode!=arr[0][0]) {
+      played++;
+      floodfill4x(arr[0][0],colorcode,0,0);
+      win=checkwin();
+      paint();
+    }
+    if(win)
+      $('#result').html("YOU WIN");
+    if(!win && played==25)
+      $('#result').html("YOU LOSE")
   $('#status').html(played+"/"+chances);
-}
+  }
 });
-
 </script>
 <div id="status"></div>
-<h3 id="status2"></div>
+<h3 id="result"></div>
 </center>
 </body>
 </html>

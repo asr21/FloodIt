@@ -1,3 +1,3 @@
 # FloodIt
 
-A floodit clone
+A clone of the game flood-it.
