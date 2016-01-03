@@ -42,9 +42,11 @@ for (var i = 0; i < 14; i++)
     for(var j=0;j<14;j++)
     {
       arr[i][j] = Math.floor(Math.random()*6);
-      console.log(arr[i][j]);
     }
   }
+paint();
+function paint()
+{
   var xpos=0,ypos=0;
   for(var i=0;i<14;i++)
   {
@@ -79,7 +81,44 @@ for (var i = 0; i < 14; i++)
     }
     ypos+=20;
   }
-$('#example').mousemove(function(e) {
+}
+function floodfill4x(originalColor,newColor,i=0,j=0)
+{
+  if(i<0 || j<0 || i>13 || j>13)
+  {
+    return;
+  }
+  if(arr[i][j]==originalColor)
+  {
+    arr[i][j]=newColor;
+  }
+  else {
+    return;
+  }
+  floodfill4x(originalColor,newColor,i+1,j);
+  floodfill4x(originalColor,newColor,i-1,j);
+  floodfill4x(originalColor,newColor,i,j+1);
+  floodfill4x(originalColor,newColor,i,j-1);
+}
+function checkwin()
+{
+  for(var i=0;i<14;i++)
+  {
+    for(var j=0;j<14;j++)
+    {
+      if(arr[i][j]!=arr[0][0])
+      {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+var chances=25;
+var played=0;
+$('#example').click(function(e) {
+  if(played<25)
+  {
   var pos = findPos(this);
   var x = e.pageX - pos.x;
   var y = e.pageY - pos.y;
@@ -87,10 +126,29 @@ $('#example').mousemove(function(e) {
   var c = this.getContext('2d');
   var p = c.getImageData(x, y, 1, 1).data;
   var hex = "#" + ("000000" + rgbToHex(p[0], p[1], p[2])).slice(-6);
-  $('#status').html(coord + "<br>" + hex);
+  var colorcode=arr[Math.floor(y/20)][Math.floor(x/20)];
+  var win;
+  if(colorcode!=arr[0][0])
+  {
+    played+=1;
+    floodfill4x(arr[0][0],colorcode);
+    win=checkwin();
+    paint();
+  }
+  if(win)
+  {
+    $('#status2').html("YOU WIN");
+  }
+  if(played==25)
+  {
+    $('#status2').html("YOU LOSE")
+  }
+  $('#status').html(played+"/"+chances);
+}
 });
 
 </script>
 <div id="status"></div>
+<h3 id="status2"></div>
 </body>
 </html>
